@@ -1,69 +1,68 @@
 import streamlit as st
-import pandas as pd
-import hashlib
-import os
+import requests
 
-# ---------- Helper Functions ----------
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+BACKEND_URL = "http://localhost:3001/api/auth"
 
-def validate_login(username, password):
-    if os.path.exists("users.csv"):
-        users = pd.read_csv("users.csv")
-        hashed = hash_password(password)
+st.title("Smart Travel DSS - Login")
 
-        user = users[(users["username"] == username) & (users["password"] == hashed)]
-        return not user.empty
-    return False
+# Initialize session state
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-def create_user(name, username, password):
-    hashed = hash_password(password)
-    new_user = pd.DataFrame([[name, username, hashed]], columns=["name", "username", "password"])
+# ----------------------------- LOGIN FUNCTION -----------------------------
+def login_user(email, password):
+    url = f"{BACKEND_URL}/login"
+    payload = {"email": email, "password": password}
 
-    if os.path.exists("users.csv"):
-        users = pd.read_csv("users.csv")
-        # check if username already exists
-        if username in users['username'].values:
-            return False
+    response = requests.post(url, json=payload)
 
-        users = pd.concat([users, new_user], ignore_index=True)
-        users.to_csv("users.csv", index=False)
+    if response.status_code == 200:
+        data = response.json()
+        st.session_state.logged_in = True
+        st.session_state.token = data.get("token", "")
+        st.success("Login successful!")
+        st.switch_page("pages/2_Destination.py")
+    elif response.status_code == 401:
+        st.error("Unauthorized: Wrong email or password")
     else:
-        new_user.to_csv("users.csv", index=False)
-    return True
+        st.error("Backend error. Try again.")
 
-# ---------- Login Page UI ----------
-st.title("Smart Travel Planner - Login")
+# ----------------------------- SIGNUP FUNCTION -----------------------------
+def signup_user(username, email, password):
+    url = f"{BACKEND_URL}/save-user"
+    payload = {"username": username, "email": email, "password": password}
 
-page = st.selectbox("Choose Option:", ["Login", "Sign Up"])
+    response = requests.post(url, json=payload)
 
-# ------------------ LOGIN ------------------
-if page == "Login":
+    if response.status_code == 201:
+        st.success("Signup successful! You can now log in.")
+    else:
+        st.error("Signup failed. Try another email.")
+
+# ----------------------------- UI SWITCHER -----------------------------
+tabs = st.tabs(["Login", "Signup"])
+
+# ----------------------------- LOGIN TAB -----------------------------
+with tabs[0]:
     st.subheader("Login to Your Account")
-
-    username = st.text_input("Username")
+    email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        if validate_login(username, password):
-            st.success("Login successful!")
-            st.session_state["logged_in"] = True
-            st.session_state["username"] = username
-            st.switch_page("pages/2_Destination_Selection.py")
+        if email and password:
+            login_user(email, password)
         else:
-            st.error("❌ Incorrect username or password.")
+            st.error("Please fill all fields")
 
-# ------------------ SIGN UP ------------------
-else:
+# ----------------------------- SIGNUP TAB -----------------------------
+with tabs[1]:
     st.subheader("Create a New Account")
+    username = st.text_input("Username")
+    email_su = st.text_input("Email", key="su_email")
+    password_su = st.text_input("Password", type="password", key="su_pass")
 
-    name = st.text_input("Full Name")
-    username = st.text_input("Choose Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Create Account"):
-        success = create_user(name, username, password)
-        if success:
-            st.success("Account created! Please return to Login page.")
+    if st.button("Signup"):
+        if username and email_su and password_su:
+            signup_user(username, email_su, password_su)
         else:
-            st.error("❌ Username already exists. Try a different one.")
+            st.error("Please fill all fields")
