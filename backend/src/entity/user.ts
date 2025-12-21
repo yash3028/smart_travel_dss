@@ -5,9 +5,6 @@ export class users {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  name!: string;
-
   @Column({ unique: true })
   username!: string;
 
@@ -16,4 +13,7 @@ export class users {
 
   @Column({ default: null })
   token!: string;
+
+  @Column()
+  email!: string;
 }
