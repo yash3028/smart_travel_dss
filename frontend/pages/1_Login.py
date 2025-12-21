@@ -10,9 +10,9 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 # ----------------------------- LOGIN FUNCTION -----------------------------
-def login_user(email, password):
+def login_user(username_, password):
     url = f"{BACKEND_URL}/login"
-    payload = {"email": email, "password": password}
+    payload = {"username": username_, "password": password}
 
     response = requests.post(url, json=payload)
 
@@ -45,19 +45,19 @@ tabs = st.tabs(["Login", "Signup"])
 # ----------------------------- LOGIN TAB -----------------------------
 with tabs[0]:
     st.subheader("Login to Your Account")
-    email = st.text_input("Email")
+    username_ = st.text_input("Username",key="login_username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        if email and password:
-            login_user(email, password)
+        if username_ and password:
+            login_user(username_, password)
         else:
             st.error("Please fill all fields")
 
 # ----------------------------- SIGNUP TAB -----------------------------
 with tabs[1]:
     st.subheader("Create a New Account")
-    username = st.text_input("Username")
+    username = st.text_input("Username",key="signup_username")
     email_su = st.text_input("Email", key="su_email")
     password_su = st.text_input("Password", type="password", key="su_pass")
 
