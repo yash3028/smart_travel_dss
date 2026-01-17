@@ -15,19 +15,9 @@ export function generateJWT(payload: object): string {
   return jwt.sign(payload, key, { expiresIn: "1h" });
 }
 
-export async function verification(
-  token: string
-): Promise<null | TokenPayload> {
+export function verification(token: string): TokenPayload {
   try {
-    let payload: TokenPayload | null = null;
-    jwt.verify(token, key, { complete: true }, function (error, decoded) {
-      if (error) {
-        throw error;
-      } else {
-        payload = decoded?.payload as TokenPayload;
-      }
-    });
-    return payload;
+    return jwt.verify(token, key) as TokenPayload;
   } catch (error) {
     throw error;
   }

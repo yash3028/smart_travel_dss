@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction, Router } from "express";
 import { login, signup } from "../services/userService";
+import { authMiddleware } from "../middleware/auth";
+const axios = require("axios");
 
 const router: Router = Router();
 router.post(
@@ -10,7 +12,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.post(
@@ -28,7 +30,35 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
+
+router.post("/budget", authMiddleware, async (req, res) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:5001/predict/budget",
+      req.body,
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error("error");
+    res.status(500).json({ error: "ML service error" });
+  }
+});
+
+router.post("/duration", authMiddleware, async (req, res) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:5001/predict/duration",
+      req.body,
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error("Duration ML error:");
+    res.status(500).json({ error: "ML duration service error" });
+  }
+});
 
 export = router;

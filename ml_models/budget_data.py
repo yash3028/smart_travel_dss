@@ -1,6 +1,7 @@
 # budget_data.py
 import pandas as pd
 import numpy as np
+import joblib
 
 np.random.seed(42)
 
@@ -34,5 +35,6 @@ for _ in range(1000):
 df = pd.DataFrame(data, columns=[
     "city", "days", "travel_type", "interest", "recommended_budget"
 ])
+
 
 df.to_csv("budget_data.csv", index=False)

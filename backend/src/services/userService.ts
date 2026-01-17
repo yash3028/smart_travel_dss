@@ -23,9 +23,6 @@ export const login = async (cred: Credentials) => {
     if (response?.password === cred.password) {
       const userPayload = payload(response.username);
       const token = generateJWT(userPayload);
-
-      response.token = token;
-      await repo.save(response);
       return { success: true, token };
     } else {
       return { success: false };

@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import urllib.parse
 
 BACKEND_URL = "http://localhost:3001/api/auth"
 
@@ -7,7 +8,14 @@ st.title("Smart Travel DSS - Login")
 
 # Initialize session state
 if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+    token = st.query_params.get("token")
+
+    if token:
+        st.session_state["jwt"] = urllib.parse.unquote(token)
+        st.session_state["logged_in"] = True
+        st.switch_page("pages/2_Destination.py")
+    else:
+        st.session_state["logged_in"] = False
 
 # ----------------------------- LOGIN FUNCTION -----------------------------
 def login_user(username_, password):
@@ -18,8 +26,12 @@ def login_user(username_, password):
 
     if response.status_code == 200:
         data = response.json()
-        st.session_state.logged_in = True
-        st.session_state.token = data.get("token", "")
+        token = data["token"]
+        st.session_state["logged_in"] = True
+        st.session_state["jwt"] = token
+        st.query_params["token"] = token
+        print("JWT:", token)
+        print("JWT length:", len(token))
         st.success("Login successful!")
         st.switch_page("pages/2_Destination.py")
     elif response.status_code == 401:

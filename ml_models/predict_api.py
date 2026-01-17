@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional
+import uvicorn
 
 import joblib
 import pandas as pd
@@ -81,6 +82,5 @@ def predict_budget(req: BudgetRequest):
 
 
 if __name__ == "__main__":
-    import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

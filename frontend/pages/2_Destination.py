@@ -1,11 +1,19 @@
 import streamlit as st
 import base64
 import os
+import urllib.parse
+
 
 # -----------------------------
 # LOGIN CHECK
 # -----------------------------
-if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+if "logged_in" not in st.session_state:
+    token = st.query_params.get("token")
+    if token:
+        st.session_state["jwt"] = urllib.parse.unquote(token)
+        st.session_state["logged_in"] = True
+
+if not st.session_state.get("logged_in"):
     st.error("Please log in first.")
     st.stop()
 
