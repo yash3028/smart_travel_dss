@@ -72,15 +72,14 @@ def create_pdf(city, country, days, budget, interests, travel_type, itinerary_pl
     for day, plan in itinerary_plan.items():
         pdf.ln(4)
         pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 8, f"{day}", ln=True)
+        pdf.cell(0, 8, day, ln=True)
         pdf.set_font("Arial", size=12)
         pdf.multi_cell(0, 7, plan)
 
-    pdf_output = BytesIO()
-    pdf.output(pdf_output)
-    pdf_output.seek(0)
+    # ✅ CORRECT WAY: get PDF as BYTES
+    pdf_bytes = pdf.output(dest="S").encode("latin-1")
 
-    return pdf_output
+    return pdf_bytes
 
 
 # ---------------------------------------------------
