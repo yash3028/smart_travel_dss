@@ -47,10 +47,10 @@ router.post("/budget", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/duration", authMiddleware, async (req, res) => {
+router.post("/destination", authMiddleware, async (req, res) => {
   try {
     const response = await axios.post(
-      "http://localhost:5001/predict/duration",
+      "http://localhost:5001/recommend/destinations",
       req.body,
     );
 
