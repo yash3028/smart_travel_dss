@@ -35,13 +35,25 @@ travel_type = st.session_state["trip_travel_type"]
 # ---------------------------------------------------
 # PAGE TITLE
 # ---------------------------------------------------
-st.title("Your Personalized Travel Itinerary")
+st.markdown(
+    "<h1 style='text-align:center; margin-bottom:10px;'>Your Personalized Travel Itinerary</h1>",
+    unsafe_allow_html=True
+)
 st.subheader(f"{city}, {country}")
 st.write(f"Trip Duration: **{days} days**")
-st.write(f"Budget: **₹{budget}**")
+st.write(f"Budget: **${float(budget):2f}**")
 st.write(f"Interests: **{', '.join(interests)}**")
 st.write(f"Travel Type: **{travel_type}**")
 st.markdown("---")
+
+st.subheader("🌍 Recommended Destinations")
+
+destinations = st.session_state.get("recommended_destinations", [])
+
+for d in destinations:
+    if d["city"]==city:
+        st.write(f"📍 {d['city']} (Match score: {d['score']})")
+        break
 
 # ---------------------------------------------------
 # FUNCTION TO GENERATE PDF (ASCII ONLY -> NO ERRORS)
@@ -59,7 +71,7 @@ def create_pdf(city, country, days, budget, interests, travel_type, itinerary_pl
     pdf.set_font("Arial", size=12)
     pdf.cell(0, 8, f"Destination: {city}, {country}", ln=True)
     pdf.cell(0, 8, f"Trip Duration: {days} days", ln=True)
-    pdf.cell(0, 8, f"Budget: Rs {budget}", ln=True)
+    pdf.cell(0, 8, f"Budget: $ {budget}", ln=True)
     pdf.cell(0, 8, f"Interests: {', '.join(interests)}", ln=True)
     pdf.cell(0, 8, f"Travel Type: {travel_type}", ln=True)
 
@@ -217,8 +229,9 @@ def add_bg(image_file):
         }}
          [data-testid="stAppViewContainer"] .block-container {{
             background: rgba(255,255,255,0.7);
-            padding: 20px;
+            padding: 40px 30px 30px 30px;;
             border-radius: 12px;
+            margin-top: 40px;
         }}
         </style>
         """,

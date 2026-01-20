@@ -126,6 +126,12 @@ if generate:
                 "attractions": 15  # fixed / estimated value
             }
 
+            destination_payload = {
+            "interest": interests[0].lower(),
+            "travel_type": travel_type.lower(),
+            "budget": "medium",     # fixed for now
+            "season": "winter"      # fixed for now
+        }
             # -----------------------------
             # Call Node Backend
             # -----------------------------
@@ -135,23 +141,22 @@ if generate:
                 headers=headers
             )
 
-            duration_res = requests.post(
-                "http://localhost:3001/api/auth/duration",
-                json=duration_payload,
-                headers=headers
-            )
+          
+            destination_res = requests.post(
+            "http://localhost:3001/api/auth/destination",
+            json=destination_payload,
+            headers=headers
+        )
 
             st.write("Budget status:", budget_res.status_code)
             st.write("Budget response:", budget_res.text)
 
-            st.write("Duration status:", duration_res.status_code)
-            st.write("Duration response:", duration_res.text)
+           
 
-            if budget_res.status_code != 200 or duration_res.status_code != 200:
+            if budget_res.status_code != 200:
                 st.error("Failed to generate trip.")
                 st.stop()
             budget_data = budget_res.json()
-            duration_data = duration_res.json()
 
             # -----------------------------
             # Save to session
@@ -160,10 +165,13 @@ if generate:
             st.session_state["trip_budget"] = budget_data["predicted_budget"]
             st.session_state["trip_interests"] = interests
             st.session_state["trip_travel_type"] = travel_type
-            st.session_state["trip_duration"] = duration_data["predicted_duration"]
+            destination_data = destination_res.json()
+            st.write("Destination raw response:", destination_res.text)
+            st.write("Destination parsed JSON:", destination_data)
+            st.session_state["recommended_destinations"] = destination_data["recommendations"]
 
-            
             st.switch_page("pages/5_Itinerary.py")
 
         except Exception as e:
             st.error("Backend or ML service not reachable.")
+            st.exception(e)
